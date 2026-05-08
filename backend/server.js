@@ -25,6 +25,7 @@ mongoose
 
 app.use('/api/concepts', require('./routes/concepts'));
 
+app.get('/', (req, res) => res.json({ status: 'ok', message: 'StudyTracker API running' }));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
