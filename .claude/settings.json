@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 8 node server.js)",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:8080/health)",
+      "Bash(kill %1)",
+      "Bash(curl -s http://localhost:8080/api/concepts/today)",
+      "Bash(curl -s http://localhost:8080/api/concepts)",
+      "Bash(curl -s -X POST http://localhost:8080/api/concepts -H 'Content-Type: application/json' -d '{\"title\":\"Binary Search\"}')",
+      "Bash(curl -s http://localhost:5173/api/concepts/today)"
+    ]
+  }
+}
