@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Concept = require('../models/Concept');
+const auth = require('../middleware/auth');
 
-// After completing day N, auto-schedule day M
 const NEXT_DAY = { 7: 10, 10: 14, 14: 21, 21: 30, 30: 60 };
 
 function dayRange(date = new Date()) {
@@ -20,11 +20,15 @@ function daysFromNow(n) {
   return d;
 }
 
+// All routes require auth
+router.use(auth);
+
 // GET /api/concepts/today
 router.get('/today', async (req, res) => {
   try {
     const { start, end } = dayRange();
     const concepts = await Concept.find({
+      userId: req.userId,
       'reviews.scheduledDate': { $gte: start, $lte: end },
     });
 
@@ -44,7 +48,7 @@ router.get('/today', async (req, res) => {
 // GET /api/concepts
 router.get('/', async (req, res) => {
   try {
-    const concepts = await Concept.find().sort({ createdAt: -1 });
+    const concepts = await Concept.find({ userId: req.userId }).sort({ createdAt: -1 });
     res.json(concepts);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -66,7 +70,7 @@ router.post('/', async (req, res) => {
       return { scheduledDate, day };
     });
 
-    const concept = new Concept({ title, description, reviews });
+    const concept = new Concept({ userId: req.userId, title, description, reviews });
     await concept.save();
     res.status(201).json(concept);
   } catch (err) {
@@ -77,7 +81,7 @@ router.post('/', async (req, res) => {
 // PATCH /api/concepts/:id/reviews/:reviewId/complete
 router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
   try {
-    const concept = await Concept.findById(req.params.id);
+    const concept = await Concept.findOne({ _id: req.params.id, userId: req.userId });
     if (!concept) return res.status(404).json({ error: 'Concept not found' });
 
     const review = concept.reviews.id(req.params.reviewId);
@@ -88,7 +92,6 @@ router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
 
     if (review.completed) {
       if (concept.priority === 'hard') {
-        // Hard mode: schedule next extra review 3 days from today
         const nextDate = daysFromNow(3);
         const hasSoon = concept.reviews.some(
           (r) =>
@@ -100,7 +103,6 @@ router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
           concept.reviews.push({ scheduledDate: nextDate, day: review.day, isExtra: true });
         }
       } else {
-        // Normal loop: auto-chain 7→14→30→60
         const nextDay = NEXT_DAY[review.day];
         if (nextDay) {
           const alreadyScheduled = concept.reviews.some((r) => r.day === nextDay && !r.isExtra);
@@ -122,15 +124,14 @@ router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
   }
 });
 
-// PATCH /api/concepts/:id/priority  — toggles normal ↔ hard
+// PATCH /api/concepts/:id/priority
 router.patch('/:id/priority', async (req, res) => {
   try {
-    const concept = await Concept.findById(req.params.id);
+    const concept = await Concept.findOne({ _id: req.params.id, userId: req.userId });
     if (!concept) return res.status(404).json({ error: 'Concept not found' });
 
     concept.priority = concept.priority === 'hard' ? 'normal' : 'hard';
 
-    // When flipping to hard: inject an extra review soon if nothing is pending within 2 days
     if (concept.priority === 'hard') {
       const twoDaysOut = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
       const hasSoon = concept.reviews.some(
@@ -154,7 +155,7 @@ router.post('/:id/notes', async (req, res) => {
     const { content, link } = req.body;
     if (!content) return res.status(400).json({ error: 'Content is required' });
 
-    const concept = await Concept.findById(req.params.id);
+    const concept = await Concept.findOne({ _id: req.params.id, userId: req.userId });
     if (!concept) return res.status(404).json({ error: 'Concept not found' });
 
     concept.notes.push({ content, link });
@@ -168,7 +169,7 @@ router.post('/:id/notes', async (req, res) => {
 // DELETE /api/concepts/:id/notes/:noteId
 router.delete('/:id/notes/:noteId', async (req, res) => {
   try {
-    const concept = await Concept.findById(req.params.id);
+    const concept = await Concept.findOne({ _id: req.params.id, userId: req.userId });
     if (!concept) return res.status(404).json({ error: 'Concept not found' });
 
     concept.notes.pull({ _id: req.params.noteId });
@@ -185,8 +186,8 @@ router.put('/:id', async (req, res) => {
     const { title, description } = req.body;
     if (!title) return res.status(400).json({ error: 'Title is required' });
 
-    const concept = await Concept.findByIdAndUpdate(
-      req.params.id,
+    const concept = await Concept.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId },
       { title, description },
       { new: true }
     );
@@ -200,7 +201,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/concepts/:id
 router.delete('/:id', async (req, res) => {
   try {
-    await Concept.findByIdAndDelete(req.params.id);
+    await Concept.findOneAndDelete({ _id: req.params.id, userId: req.userId });
     res.json({ message: 'Concept deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

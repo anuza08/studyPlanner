@@ -8,7 +8,8 @@
       "Bash(curl -s http://localhost:8080/api/concepts/today)",
       "Bash(curl -s http://localhost:8080/api/concepts)",
       "Bash(curl -s -X POST http://localhost:8080/api/concepts -H 'Content-Type: application/json' -d '{\"title\":\"Binary Search\"}')",
-      "Bash(curl -s http://localhost:5173/api/concepts/today)"
+      "Bash(curl -s http://localhost:5173/api/concepts/today)",
+      "Bash(npm install *)"
     ]
   }
 }

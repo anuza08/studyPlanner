@@ -11,11 +11,12 @@ const reviewSchema = new mongoose.Schema({
   day: { type: Number, required: true },
   completed: { type: Boolean, default: false },
   completedAt: { type: Date },
-  isExtra: { type: Boolean, default: false }, // hard-mode injected review
+  isExtra: { type: Boolean, default: false },
 });
 
 const conceptSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '' },
     dateAdded: { type: Date, default: Date.now },
