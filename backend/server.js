@@ -6,13 +6,25 @@ require('dotenv').config();
 
 const app = express();
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL]
-  : ['http://localhost:5173'];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+];
 
-app.options('*', cors());
+function corsOrigin(origin, callback) {
+  // Allow requests with no origin (mobile apps, curl, Postman)
+  if (!origin) return callback(null, true);
+  // Allow any vercel.app subdomain
+  if (origin.endsWith('.vercel.app')) return callback(null, true);
+  // Allow explicitly listed origins
+  if (allowedOrigins.includes(origin)) return callback(null, true);
+  callback(new Error(`CORS blocked: ${origin}`));
+}
+
+app.options('*', cors({ origin: corsOrigin, credentials: true }));
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
