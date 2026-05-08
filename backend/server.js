@@ -5,7 +5,14 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors({ origin: '*' }));
+// Handle preflight for all routes
+app.options('*', cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/spaced-repetition';
