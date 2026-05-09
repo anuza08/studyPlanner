@@ -4,15 +4,19 @@ import NotesSection from './NotesSection.jsx';
 import EditConceptModal from './EditConceptModal.jsx';
 
 const DAY_LABEL = {
-  1: 'Day 1 · First Read',
-  2: 'Day 2', 3: 'Day 3', 4: 'Day 4', 5: 'Day 5', 6: 'Day 6',
-  7: 'Day 7', 10: 'Day 10', 14: 'Day 14', 21: 'Day 21', 30: 'Day 30',
+  1:  'Day 1 · First Read',
+  3:  'Day 3 · Recall',
+  7:  'Day 7 · Reinforce',
+  14: 'Day 14 · Solidify',
+  30: 'Day 30 · Long-term',
   60: 'Day 60 · Mastered',
 };
 const DAY_COLOR = {
-  1: 'chip-blue',
-  2: 'chip-blue', 3: 'chip-blue', 4: 'chip-green', 5: 'chip-green', 6: 'chip-green',
-  7: 'chip-orange', 10: 'chip-orange', 14: 'chip-purple', 21: 'chip-purple', 30: 'chip-purple',
+  1:  'chip-blue',
+  3:  'chip-green',
+  7:  'chip-orange',
+  14: 'chip-purple',
+  30: 'chip-purple',
   60: 'chip-purple',
 };
 

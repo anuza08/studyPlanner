@@ -3,7 +3,7 @@ const router = express.Router();
 const Concept = require('../models/Concept');
 const auth = require('../middleware/auth');
 
-const NEXT_DAY = { 7: 10, 10: 14, 14: 21, 21: 30, 30: 60 };
+const NEXT_DAY = { 7: 14, 14: 30, 30: 60 };
 
 function dayRange(date = new Date()) {
   const start = new Date(date);
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const reviews = [1, 2, 3, 4, 5, 6, 7].map((day) => {
+    const reviews = [1, 3, 7].map((day) => {
       const scheduledDate = new Date(today);
       scheduledDate.setDate(today.getDate() + (day - 1));
       return { scheduledDate, day };

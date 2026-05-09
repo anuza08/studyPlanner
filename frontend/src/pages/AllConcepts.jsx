@@ -3,7 +3,7 @@ import { getAllConcepts, deleteConcept, togglePriority } from '../api/concepts.j
 import NotesSection from '../components/NotesSection.jsx';
 import EditConceptModal from '../components/EditConceptModal.jsx';
 
-const DAY_COLOR = { 1: 'chip-blue', 2: 'chip-blue', 3: 'chip-blue', 4: 'chip-green', 5: 'chip-green', 6: 'chip-green', 7: 'chip-orange', 10: 'chip-orange', 14: 'chip-purple', 21: 'chip-purple', 30: 'chip-purple', 60: 'chip-purple' };
+const DAY_COLOR = { 1: 'chip-blue', 3: 'chip-green', 7: 'chip-orange', 14: 'chip-purple', 30: 'chip-purple', 60: 'chip-purple' };
 
 function ConceptRow({ concept, onDelete, onUpdate }) {
   const [expanded, setExpanded] = useState(false);

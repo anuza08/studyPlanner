@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createConcept } from '../api/concepts.js';
 
-const SCHEDULE_LABELS = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'then Day 10 → 14 → 21 → 30 → 60'];
+const SCHEDULE_LABELS = ['Day 1', 'Day 3', 'Day 7', 'Day 14', 'Day 30', 'Day 60'];
 
 export default function AddConceptModal({ onClose, onSuccess }) {
   const [title, setTitle] = useState('');
