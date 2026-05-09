@@ -14,6 +14,13 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
+  // Listen for token expiry fired by the axios interceptor
+  useEffect(() => {
+    const handleExpired = () => setUser(null);
+    window.addEventListener('auth:expired', handleExpired);
+    return () => window.removeEventListener('auth:expired', handleExpired);
+  }, []);
+
   return (
     <AuthContext.Provider value={{ user, setUser, loading }}>
       {children}

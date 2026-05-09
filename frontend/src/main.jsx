@@ -4,19 +4,18 @@ import axios from 'axios';
 import App from './App.jsx';
 import './App.css';
 
-// Send cookies with every request (needed for auth)
 axios.defaults.withCredentials = true;
 
-// If token expires mid-session, redirect to login
+// When any API call returns 401, fire a custom event so AuthContext can react
 axios.interceptors.response.use(
   (res) => res,
   (error) => {
     const is401 = error.response?.status === 401;
-    const isAuthCheck = error.config?.url?.includes('/auth/me');
+    const isAuthEndpoint = error.config?.url?.includes('/auth/');
     const isAuthPage = ['/login', '/register'].includes(window.location.pathname);
 
-    if (is401 && !isAuthCheck && !isAuthPage) {
-      window.location.href = '/login';
+    if (is401 && !isAuthEndpoint && !isAuthPage) {
+      window.dispatchEvent(new Event('auth:expired'));
     }
     return Promise.reject(error);
   }

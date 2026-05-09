@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -56,8 +56,16 @@ function Nav({ onAdd }) {
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
   if (loading) return <div className="loading">Loading…</div>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return null;
   return children;
 }
 
