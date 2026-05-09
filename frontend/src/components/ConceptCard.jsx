@@ -23,9 +23,11 @@ const DAY_COLOR = {
 function getChip(review) {
   if (!review) return { label: 'Review', color: 'chip-blue' };
   if (review.isExtra) return { label: '🔥 Hard Review', color: 'chip-red' };
+  // Day 60+ repeating reviews
+  if (review.day > 60) return { label: `Day ${review.day} · Ongoing`, color: 'chip-purple' };
   return {
     label: DAY_LABEL[review.day] || `Day ${review.day}`,
-    color: DAY_COLOR[review.day] || 'chip-blue',
+    color: DAY_COLOR[review.day] || 'chip-purple',
   };
 }
 

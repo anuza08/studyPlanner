@@ -105,6 +105,7 @@ router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
       } else {
         const nextDay = NEXT_DAY[review.day];
         if (nextDay) {
+          // Chain 7→14→30→60
           const alreadyScheduled = concept.reviews.some((r) => r.day === nextDay && !r.isExtra);
           if (!alreadyScheduled) {
             const base = new Date(concept.dateAdded);
@@ -112,6 +113,16 @@ router.patch('/:id/reviews/:reviewId/complete', async (req, res) => {
             const scheduledDate = new Date(base);
             scheduledDate.setDate(base.getDate() + nextDay - 1);
             concept.reviews.push({ scheduledDate, day: nextDay });
+          }
+        } else if (review.day >= 60) {
+          // After Day 60: repeat every 60 days from completion date, forever
+          const nextDayNum = review.day + 60;
+          const alreadyScheduled = concept.reviews.some((r) => r.day === nextDayNum && !r.isExtra);
+          if (!alreadyScheduled) {
+            const scheduledDate = new Date(review.completedAt || new Date());
+            scheduledDate.setHours(0, 0, 0, 0);
+            scheduledDate.setDate(scheduledDate.getDate() + 60);
+            concept.reviews.push({ scheduledDate, day: nextDayNum });
           }
         }
       }
