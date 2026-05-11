@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getTodayConcepts } from '../api/concepts.js';
 import ConceptCard from '../components/ConceptCard.jsx';
 
@@ -18,7 +18,13 @@ export default function Today() {
   useEffect(() => {
     getTodayConcepts()
       .then((res) => setConcepts(res.data))
-      .catch(() => setError("Failed to load today's reviews"))
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          window.dispatchEvent(new Event('auth:expired'));
+        } else {
+          setError("Failed to load today's reviews");
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
