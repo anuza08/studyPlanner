@@ -21,8 +21,8 @@ function Nav({ onAdd }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout(); // clears localStorage
     setUser(null);
     navigate('/login');
   };

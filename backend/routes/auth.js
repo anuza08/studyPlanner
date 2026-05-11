@@ -4,14 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-function cookieOpts() {
-  const prod = process.env.NODE_ENV === 'production';
-  return {
-    httpOnly: true,
-    secure: prod,
-    sameSite: prod ? 'none' : 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  };
+function makeToken(userId) {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
 }
 
 // POST /api/auth/register
@@ -28,10 +22,9 @@ router.post('/register', async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hash });
+    const token = makeToken(user._id);
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    res.cookie('token', token, cookieOpts());
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email });
+    res.status(201).json({ token, user: { _id: user._id, name: user.name, email: user.email } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -50,24 +43,20 @@ router.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: 'Invalid email or password' });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    res.cookie('token', token, cookieOpts());
-    res.json({ _id: user._id, name: user.name, email: user.email });
+    const token = makeToken(user._id);
+    res.json({ token, user: { _id: user._id, name: user.name, email: user.email } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/auth/logout
-router.post('/logout', (req, res) => {
-  res.clearCookie('token', cookieOpts());
-  res.json({ message: 'Logged out' });
-});
+// POST /api/auth/logout  — client just deletes the token, nothing to do server-side
+router.post('/logout', (req, res) => res.json({ message: 'Logged out' }));
 
 // GET /api/auth/me
 router.get('/me', async (req, res) => {
   try {
-    const token = req.cookies?.token;
+    const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -76,7 +65,7 @@ router.get('/me', async (req, res) => {
 
     res.json(user);
   } catch {
-    res.status(401).json({ error: 'Invalid session' });
+    res.status(401).json({ error: 'Invalid or expired session' });
   }
 });
 

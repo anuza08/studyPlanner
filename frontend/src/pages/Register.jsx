@@ -17,8 +17,8 @@ export default function Register() {
     setLoading(true);
     setError('');
     try {
-      const res = await register({ name, email, password });
-      setUser(res.data);
+      const user = await register({ name, email, password });
+      setUser(user);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed');

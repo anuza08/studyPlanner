@@ -8,17 +8,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     getMe()
       .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
+      .catch(() => {
+        localStorage.removeItem('token'); // clear bad/expired token
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  // Listen for token expiry fired by the axios interceptor
+  // Listen for token expiry fired by axios interceptor
   useEffect(() => {
-    const handleExpired = () => setUser(null);
-    window.addEventListener('auth:expired', handleExpired);
-    return () => window.removeEventListener('auth:expired', handleExpired);
+    const handle = () => setUser(null);
+    window.addEventListener('auth:expired', handle);
+    return () => window.removeEventListener('auth:expired', handle);
   }, []);
 
   return (

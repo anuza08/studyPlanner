@@ -4,9 +4,14 @@ import axios from 'axios';
 import App from './App.jsx';
 import './App.css';
 
-axios.defaults.withCredentials = true;
+// Attach token from localStorage to every request
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-// When any API call returns 401, fire a custom event so AuthContext can react
+// On 401, clear token and fire event so app redirects to login
 axios.interceptors.response.use(
   (res) => res,
   (error) => {
@@ -15,6 +20,7 @@ axios.interceptors.response.use(
     const isAuthPage = ['/login', '/register'].includes(window.location.pathname);
 
     if (is401 && !isAuthEndpoint && !isAuthPage) {
+      localStorage.removeItem('token');
       window.dispatchEvent(new Event('auth:expired'));
     }
     return Promise.reject(error);
