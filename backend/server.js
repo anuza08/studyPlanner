@@ -22,13 +22,15 @@ function corsOrigin(origin, callback) {
   callback(new Error(`CORS blocked: ${origin}`));
 }
 
-app.options('*', cors({ origin: corsOrigin, credentials: true }));
-app.use(cors({
+const corsOptions = {
   origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());

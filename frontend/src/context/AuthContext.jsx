@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
       .catch(() => {
         localStorage.removeItem('token');
         setUser(null);
-        // axios interceptor will redirect to /login on 401
+        window.location.href = '/login';
       })
       .finally(() => setLoading(false));
   }, []);
