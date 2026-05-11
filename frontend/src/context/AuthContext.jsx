@@ -16,17 +16,11 @@ export function AuthProvider({ children }) {
     getMe()
       .then((res) => setUser(res.data))
       .catch(() => {
-        localStorage.removeItem('token'); // clear bad/expired token
+        localStorage.removeItem('token');
         setUser(null);
+        // axios interceptor will redirect to /login on 401
       })
       .finally(() => setLoading(false));
-  }, []);
-
-  // Listen for token expiry fired by axios interceptor
-  useEffect(() => {
-    const handle = () => setUser(null);
-    window.addEventListener('auth:expired', handle);
-    return () => window.removeEventListener('auth:expired', handle);
   }, []);
 
   return (

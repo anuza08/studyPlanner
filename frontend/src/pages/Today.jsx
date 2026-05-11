@@ -19,9 +19,7 @@ export default function Today() {
     getTodayConcepts()
       .then((res) => setConcepts(res.data))
       .catch((err) => {
-        if (err.response?.status === 401) {
-          window.dispatchEvent(new Event('auth:expired'));
-        } else {
+        if (err.response?.status !== 401) {
           setError("Failed to load today's reviews");
         }
       })

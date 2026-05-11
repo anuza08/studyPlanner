@@ -11,17 +11,18 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401, clear token and fire event so app redirects to login
+// On 401, clear token and hard-redirect to login (skip login/register endpoints to avoid loops)
 axios.interceptors.response.use(
   (res) => res,
   (error) => {
     const is401 = error.response?.status === 401;
-    const isAuthEndpoint = error.config?.url?.includes('/auth/');
+    const url = error.config?.url || '';
+    const isLoginOrRegister = url.includes('/auth/login') || url.includes('/auth/register');
     const isAuthPage = ['/login', '/register'].includes(window.location.pathname);
 
-    if (is401 && !isAuthEndpoint && !isAuthPage) {
+    if (is401 && !isLoginOrRegister && !isAuthPage) {
       localStorage.removeItem('token');
-      window.dispatchEvent(new Event('auth:expired'));
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

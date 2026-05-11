@@ -119,9 +119,7 @@ export default function AllConcepts() {
   useEffect(() => {
     getAllConcepts()
       .then((res) => setConcepts(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) window.dispatchEvent(new Event('auth:expired'));
-      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
