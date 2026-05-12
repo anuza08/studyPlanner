@@ -4,6 +4,14 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
+// Fail fast — a missing JWT_SECRET means every token will be signed with
+// "undefined" as the secret, instantly invalidating all existing sessions.
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set.');
+  console.error('Set it in your .env file (local) or in the Render dashboard (production).');
+  process.exit(1);
+}
+
 const app = express();
 
 const allowedOrigins = [
