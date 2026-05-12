@@ -19,7 +19,9 @@ export default function Today() {
     getTodayConcepts()
       .then((res) => setConcepts(res.data))
       .catch((err) => {
-        if (err.response?.status !== 401) {
+        if (err.response?.status === 401 || !localStorage.getItem('token')) {
+          window.location.href = '/login';
+        } else {
           setError("Failed to load today's reviews");
         }
       })

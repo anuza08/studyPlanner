@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -57,7 +57,10 @@ function Nav({ onAdd }) {
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="loading">Loading…</div>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user || !localStorage.getItem('token')) {
+    localStorage.removeItem('token');
+    return <Navigate to="/login" replace />;
+  }
   return children;
 }
 

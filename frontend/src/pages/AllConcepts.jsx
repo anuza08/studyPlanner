@@ -119,7 +119,11 @@ export default function AllConcepts() {
   useEffect(() => {
     getAllConcepts()
       .then((res) => setConcepts(res.data))
-      .catch(() => {})
+      .catch((err) => {
+        if (err.response?.status === 401 || !localStorage.getItem('token')) {
+          window.location.href = '/login';
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
