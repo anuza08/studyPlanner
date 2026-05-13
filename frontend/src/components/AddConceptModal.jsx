@@ -24,6 +24,7 @@ export default function AddConceptModal({ onClose, onSuccess }) {
       setLoading(false);
     }
   };
+  console.log(require('crypto').randomBytes(64).toString('hex'))
 
   return (
     <div className="modal-overlay" onClick={onClose}>
