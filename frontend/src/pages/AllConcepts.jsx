@@ -120,8 +120,9 @@ export default function AllConcepts() {
     getAllConcepts()
       .then((res) => setConcepts(res.data))
       .catch((err) => {
-        if (err.response?.status === 401 || !localStorage.getItem('token')) {
-          window.location.href = '/login';
+        // 401 is handled globally by the axios interceptor in main.jsx
+        if (err.response?.status !== 401) {
+          setConcepts([]);
         }
       })
       .finally(() => setLoading(false));
